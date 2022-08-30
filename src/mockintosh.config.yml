@@ -1,0 +1,37 @@
+services: # config requires at least one service to be configured
+  - name: HTTP requests  # optional, used for visual reference
+    port: 8001  # required option, on which port to serve HTTP traffic
+
+    endpoints:
+      # test with: curl -v http://localhost:8888/api/myURLParamValue123/action
+      - path: /api/{{param}}/action  # Handlebars expressions can be part of request URL
+        response: "request URL contained {{param}}"  # and can be referenced in response
+
+  - name: ServiceSQSAWS
+    type: amazonsqs
+    ssl: true
+    address: https://<AWS_ACCESS_KEY_ID>:<AWS_SECRET_ACCESS_KEY>@sa-east-1.queue.amazonaws.com:443#sa-east-1
+
+globals: # optional section
+  performanceProfile: justSlow  # for all endpoints, apply this performance profile
+  headers:
+    content-type: application/json
+
+management:
+  port: 9999  # enable the management API+UI on certain port, open in browser http://localhost:9999 to see it
+  # ssl: true  # same behavior as service's option
+
+performanceProfiles:
+  justSlow:
+    ratio: 1.0  # work 100% of time
+    delay: 0.5  # introduce 0.5s delay
+
+  allPossibleOptions:  # will cause 40% of requests to fail with various reasons
+    ratio: 0.5  # only affect half of the traffic
+    delay: 2.5  # considerable delay
+    faults:
+      PASS: 0.2  # 20% of times, cause no failure
+      RST: 0.2   # simulate connection reset
+      FIN: 0.2   # simulate sudden connection shutdown
+      400: 0.2
+      500: 0.2
