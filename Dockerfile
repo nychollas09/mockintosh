@@ -5,10 +5,11 @@ LABEL organization="Accenture Song"
 
 WORKDIR /usr/mockintosh
 
-RUN apt update -y && apt upgrade -y
-
-COPY ./src .
-
+RUN apt update -y && apt upgrade -y && apt install curl -y
 RUN pip3 install mockintosh[cloud]
+
+COPY src .
+
+EXPOSE 9999
 
 ENTRYPOINT [ "mockintosh", "mockintosh.config.yml" ]
