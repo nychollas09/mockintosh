@@ -5,7 +5,6 @@ management:
   # ssl: true  # same behavior as service's option
 
 globals: # optional section
-  performanceProfile: justSlow # for all endpoints, apply this performance profile
   headers:
     content-type: application/json
 
@@ -20,6 +19,7 @@ services: # config requires at least one service to be configured
         response:
           - tag: success-case
             status: 200
+            triggerAsyncProducer: Simple Message Producer
             body: '@/responses/example.json.j2'
 
           - tag: internalservererror-case
@@ -29,10 +29,17 @@ services: # config requires at least one service to be configured
   - name: ServiceSQSAWS
     type: amazonsqs
     ssl: true
-    address: https://<AWS_ACCESS_KEY_ID>:<AWS_SECRET_ACCESS_KEY>@queue.amazonaws.com:443#us-east-1
+    address: "https://<AWS_ACCESS_KEY_ID>:<AWS_SECRET_ACCESS_KEY>@sa-east-1.queue.amazonaws.com:443#sa-east-1"
     actors: 
-      - name: mockintoshProducer
+      - name: Simple Message Producer
         produce:
           queue: PoC-Mockinstosh
-          key:  Mockintosh
+          key:  Mockintosh # Message group ID in SQS
           value: '@/responses/queue.json.j2'
+
+      # - name: Simple Message Consumer
+      #   consumer:
+      #     queue: PoC-Mockinstosh
+      #     key:  Mockintosh
+      #     value: '' # Expected Value
+      #     capture: 10
